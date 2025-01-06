@@ -1312,3 +1312,317 @@ class MediaMixin:
         except Exception as e:
             self.logger.error(f"Error retrieving live viewers: {e}")
             raise
+
+    def media_livestream_wave(self, broadcast_id: str, user_id: str) -> bool:
+        """
+        Send a wave to a viewer during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        user_id : str
+            The ID of the user to send the wave to.
+
+        Returns
+        -------
+        bool
+            True if the wave was successfully sent, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "viewer_id": user_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/wave/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error sending wave: {e}")
+            return False
+
+    def media_get_livestream_like_count(self, broadcast_id: str) -> int:
+        """
+        Get the total like count for the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+
+        Returns
+        -------
+        int
+            The total number of likes received during the live broadcast.
+        """
+        try:
+            result = self.private_request(f"live/{broadcast_id}/get_live_like_count/")
+            return result.get('like_count', 0)
+        except Exception as e:
+            self.logger.error(f"Error retrieving like count: {e}")
+            return 0
+
+    def media_livestream_block_user_comments(self, broadcast_id: str, user_id: str) -> bool:
+        """
+        Block a user from commenting on the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        user_id : str
+            The user ID of the user to block.
+
+        Returns
+        -------
+        bool
+            True if the user was successfully blocked, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "viewer_id": user_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/block_comments/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error blocking user comments: {e}")
+            return False
+
+    def media_get_livestream_unblock_user_comments(self, broadcast_id: str, user_id: str) -> bool:
+        """
+        Unblock a user from commenting on the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        user_id : str
+            The user ID of the user to unblock.
+
+        Returns
+        -------
+        bool
+            True if the user was successfully unblocked, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "viewer_id": user_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/unblock_comments/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error unblocking user comments: {e}")
+            return False
+
+    def media_livestream_pin_comment(self, broadcast_id: str, comment_id: str) -> bool:
+        """
+        Pin a comment during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        comment_id : str
+            The ID of the comment to pin.
+
+        Returns
+        -------
+        bool
+            True if the comment was successfully pinned, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "comment_id": comment_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/pin_comment/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error pinning comment: {e}")
+            return False
+
+    def media_livestream_unpin_comment(self, broadcast_id: str, comment_id: str) -> bool:
+        """
+        Unpin a comment during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        comment_id : str
+            The ID of the comment to unpin.
+
+        Returns
+        -------
+        bool
+            True if the comment was successfully unpinned, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "comment_id": comment_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/unpin_comment/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error unpinning comment: {e}")
+            return False
+
+    def media_get_live_heartbeat_and_viewer_count(self, broadcast_id: str) -> Dict:
+        """
+        Get the current viewer count and heartbeat status of the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+
+        Returns
+        -------
+        Dict
+            A dictionary containing the viewer count and heartbeat status.
+        """
+        try:
+            result = self.private_request(f"live/{broadcast_id}/get_live_heartbeat_and_viewer_count/")
+            return {
+                "viewer_count": result.get('viewer_count', 0),
+                "heartbeat_status": result.get('heartbeat_status', 'unknown')
+            }
+        except Exception as e:
+            self.logger.error(f"Error retrieving heartbeat and viewer count: {e}")
+            return {"viewer_count": 0, "heartbeat_status": "unknown"}
+
+    def media_get_livestream_final_viewer_list(self, broadcast_id: str) -> List[Dict]:
+        """
+        Get the final list of viewers who watched the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+
+        Returns
+        -------
+        List[Dict]
+            A list of viewers with their usernames and user IDs.
+        """
+        try:
+            result = self.private_request(f"live/{broadcast_id}/get_final_viewer_list/")
+            return [{"username": user['username'], "pk": user['pk']} for user in result.get('users', [])]
+        except Exception as e:
+            self.logger.error(f"Error retrieving final viewer list: {e}")
+            return []
+
+    def media_get_livestream_questions(self, broadcast_id: str) -> List[Dict]:
+        """
+        Get the list of questions submitted by viewers during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+
+        Returns
+        -------
+        List[Dict]
+            A list of questions with their text and user details.
+        """
+        try:
+            result = self.private_request(f"live/{broadcast_id}/get_live_questions/")
+            return [{"text": q['text'], "user": q['user']} for q in result.get('questions', [])]
+        except Exception as e:
+            self.logger.error(f"Error retrieving live questions: {e}")
+            return []
+
+    def media_livestream_answer_question(self, broadcast_id: str, question_id: str, answer_text: str) -> bool:
+        """
+        Answer a question submitted by a viewer during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        question_id : str
+            The ID of the question to answer.
+        answer_text : str
+            The text of the answer.
+
+        Returns
+        -------
+        bool
+            True if the question was successfully answered, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "question_id": question_id,
+            "answer_text": answer_text,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/answer_question/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error answering question: {e}")
+            return False
+
+    def media_livestream_delete_question(self, broadcast_id: str, question_id: str) -> bool:
+        """
+        Delete a question submitted by a viewer during the live broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+        question_id : str
+            The ID of the question to delete.
+
+        Returns
+        -------
+        bool
+            True if the question was successfully deleted, False otherwise.
+        """
+        data = {
+            "_uuid": self.uuid,
+            "_uid": self.user_id,
+            "question_id": question_id,
+            "_csrftoken": self.token,
+        }
+        try:
+            result = self.private_request(f"live/{broadcast_id}/delete_question/", data=data)
+            return result.get("status") == "ok"
+        except Exception as e:
+            self.logger.error(f"Error deleting question: {e}")
+            return False
+
+    def media_get_livestream_post_thumbnails(self, broadcast_id: str) -> List[str]:
+        """
+        Get the post-live thumbnails for the broadcast.
+
+        Parameters
+        ----------
+        broadcast_id : str
+            The ID of the live broadcast.
+
+        Returns
+        -------
+        List[str]
+            A list of thumbnail URLs.
+        """
+        try:
+            result = self.private_request(f"live/{broadcast_id}/get_post_live_thumbnails/")
+            return result.get("thumbnails", [])
+        except Exception as e:
+            self.logger.error(f"Error retrieving post-live thumbnails: {e}")
+            return []
